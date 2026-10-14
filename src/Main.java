@@ -1,7 +1,7 @@
+import java.time.LocalDate;
 import java.util.Scanner;
 
 public class Main {
-
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         BudgetManager manager = new BudgetManager();
@@ -10,21 +10,23 @@ public class Main {
         // run == trueの間は実行
         while (run) {
             showMenu();
-            if(sc.hasNextInt()) {
+            if (sc.hasNextInt()) {
                 int number = sc.nextInt();
-                if(number == 7) { // 7の時はアプリを終了する
+                sc.nextLine();
+                
+                if (number == 7) { // 7の時はアプリを終了する
                     System.out.println("アプリケーションを終了します");
                     run = false;
+                } else {
+                    callFunc(number, sc, manager); // 処理分岐させる関数
                 }
-
-                callFunc(number, sc, manager); // 処理分岐させる関数
             } else {
                 System.err.println("番号を数字で入力してください");
-                sc.next(); // 入力を破棄
+                sc.next();
             }
-
-            sc.close();
         }
+
+        sc.close();
     }
 
     // メニューの表示
@@ -54,36 +56,69 @@ public class Main {
                 registerManager(sc, manager, TransactionType.EXPENSE);
                 break;
             case 3:
-                
                 break;
             case 4:
-                
                 break;
             case 5:
-                
                 break;
             case 6:
-                
                 break;
             default:
+                System.out.println("メニューに表示されている番号を入力してください");
                 break;
         }
     }
 
-    // 支出登録。入力処理にmainのScanner使い回すようにする
+    // 登録処理
     public static void registerManager(Scanner sc, BudgetManager manager, TransactionType type) {
         long amount = 0;
-        String memo = "";
+        String category;
+        String memo;
+        LocalDate date;
 
-        String typeNaame = type.getDisplayName(); // TransactionTypeの名前を取得
-        System.out.println("---" + typeNaame + "を登録します---");
+        String typeName = type.getDisplayName(); // TransactionTypeの名前を取得
+        System.out.println("--- " + typeName + "を登録します ---");
 
         // 金額
+        while (true) {
+            System.out.println("金額を入力してください:");
+            if (sc.hasNextLong()) {
+                amount = sc.nextLong();
+                sc.nextLine();
+                if (amount < 0) {
+                    System.out.println("0以上の数値を入力してください");
+                } else {
+                    break;
+                }
+            } else {
+                System.out.println("数値を入力してください");
+                sc.next();
+            }
+        }
 
         // カテゴリ
+        System.out.println("カテゴリーを入力してください(例: 食費)");
+        category = sc.next();
+        sc.nextLine();
+
+        // 日付
+        date = LocalDate.now();
 
         // メモ(任意)
+        while (true) {
+            System.out.println("メモを入力してください(50文字以内・任意なので書かない場合はEnter):");
+            memo = sc.nextLine();
+            if (memo.isEmpty()) {
+                memo = "-";
+                break;
+            } else if (memo.length() > 50) {
+                System.out.println("メモは50文字以内で入力してください");
+            } else {
+                break;
+            }
+        }
 
-        manager.addTransaction(type, amount, typeNaame, null, memo);
+        manager.addTransaction(type, amount, category, date, memo);
+        System.out.println(typeName + "の登録が完了しました！\n");
     }
 }
