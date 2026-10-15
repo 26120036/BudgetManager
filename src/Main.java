@@ -123,8 +123,17 @@ public class Main {
         sc.nextLine();
 
         // 日付
-        date = LocalDate.now();
-
+        while (true) {
+            System.out.print("日付をyyyy-MM-dd形式で入力してください(例: 2026-10-15): ");
+            String dateStr = sc.nextLine();
+            try {
+                date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+                break;
+            } catch (DateTimeParseException e) {
+                System.out.println("日付の形式が正しくないか、実在しません。もう一度入力してください");
+            }
+        }
+        
         // メモ(任意)
         while (true) {
             System.out.println("メモを入力してください(50文字以内・任意なので書かない場合はEnter):");
