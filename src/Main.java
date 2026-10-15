@@ -62,6 +62,27 @@ public class Main {
             case 5:
                 break;
             case 6:
+                int year;
+                int month;
+
+                try {
+                    System.out.print("取得したい年を入力してください(例: 2026): ");
+                    year = sc.nextInt();
+
+                    System.out.print("取得したい月を入力してください(1~12): ");
+                    month = sc.nextInt();
+                    sc.nextLine();
+
+                    // 入力値をYearMonthオブジェクトにする
+                    YearMonth targetYM = YearMonth.of(year, month);
+                    manager.showMonthlySummary(targetYM);
+                    
+                } catch (java.util.InputMismatchException e) {
+                    System.err.println("数値を入力してください");
+                    sc.next();
+                } catch (DateTimeException e) {
+                    System.err.println("有効な年月を入力してください");
+                }
                 break;
             default:
                 System.out.println("メニューに表示されている番号を入力してください");

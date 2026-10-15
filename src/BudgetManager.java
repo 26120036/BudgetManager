@@ -1,6 +1,7 @@
 // 取引の管理
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,33 @@ public class BudgetManager {
     }
 
     // 収支(月ごと)を表示
+    public void showMonthlySummary(YearMonth targetYM) {
+        long totalIncome = 0; // 収入合計
+        long totalExpense = 0; // 支出合計
+
+        for(Transaction t: transactions) {
+            YearMonth tsYearMonth = YearMonth.from(t.getDate());
+
+            // 指定された年月(yyyy-mmの形式)と同じ物だけ通す
+            if (tsYearMonth.equals(targetYM)) {
+                // 収支の分岐
+                if (t.getTransactionType() == TransactionType.INCOME) {
+                    totalIncome += t.getAmount();
+                } else if(t.getTransactionType() == TransactionType.EXPENSE) {
+                    totalExpense += t.getAmount();
+                }
+            }
+        }
+
+        // 一月の収支
+        long balance = totalIncome - totalExpense;
+
+        // 出力
+        System.out.printf("--- %d年%d月の収支 ---", targetYM.getYear(), targetYM.getMonthValue());
+        System.out.printf("収入合計: %,d円\n", totalIncome);
+        System.out.printf("支出合計: %,d円\n", totalExpense);
+        System.out.printf("収支:     %,d円\n", balance);
+    }
 
     // 取引の検索
 
