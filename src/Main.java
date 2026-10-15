@@ -102,16 +102,15 @@ public class Main {
 
         // 金額
         while (true) {
-            System.out.println("金額を入力してください:");
-            if (sc.hasNextLong()) {
+            System.out.print("金額を入力してください: ");
+            try {
                 amount = sc.nextLong();
                 sc.nextLine();
-                if (amount < 0) {
-                    System.out.println("0以上の数値を入力してください");
-                } else {
+                if (amount > 0) {
                     break;
                 }
-            } else {
+                System.out.println("0以上の数値を入力してください");
+            } catch (java.util.InputMismatchException e) {
                 System.out.println("数値を入力してください");
                 sc.next();
             }
@@ -133,7 +132,7 @@ public class Main {
                 System.out.println("日付の形式が正しくないか、実在しません。もう一度入力してください");
             }
         }
-        
+
         // メモ(任意)
         while (true) {
             System.out.println("メモを入力してください(50文字以内・任意なので書かない場合はEnter):");

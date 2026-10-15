@@ -1,0 +1,3 @@
+・getMonthはenum型のためJANUARYなどが入ってる。数字で取得したいときはgetMonthValueを使う  
+・hasNextInt()で早めに拾うのもいいんだけど、毎回if文かくから冗長になりがち。今回はためしにnextLongで入れてエラーが出たらInputMismatchExceptionで拾うようにしてみた。    
+nextLine()とかでなんでもいいからとりあえず入力→longやintにparse→失敗はNumberFormatExceptionで拾うとかでもよさそう。
