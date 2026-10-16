@@ -72,4 +72,22 @@ public class BudgetManager {
     // 取引の検索
 
     // 取引の削除
+    public void deleteTransaction(int id) {
+        Transaction t = findById(id);
+        if (t != null) {
+            transactions.remove(id);
+        } else {
+            System.err.println("指定されたIDの取引がありませんでした");
+        }
+    }
+
+    // 指定されたIDの取引があるかどうか探す関数
+    private Transaction findById(int id) {
+        for(Transaction t: transactions) {
+            if (t.getId() == id) {
+                return t;
+            }
+        }
+        return  null;
+    }
 }

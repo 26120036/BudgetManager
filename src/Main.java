@@ -1,4 +1,8 @@
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class Main {
@@ -56,10 +60,17 @@ public class Main {
                 registerManager(sc, manager, TransactionType.EXPENSE);
                 break;
             case 3:
+                manager.showTransaction();
                 break;
             case 4:
                 break;
             case 5:
+                manager.showTransaction();
+                System.out.println();
+                System.out.println("削除したい取引のIDを指定してください");
+                
+                int id = sc.nextInt();
+                manager.deleteTransaction(id);
                 break;
             case 6:
                 int year;
@@ -73,7 +84,6 @@ public class Main {
                     month = sc.nextInt();
                     sc.nextLine();
 
-                    // 入力値をYearMonthオブジェクトにする
                     YearMonth targetYM = YearMonth.of(year, month);
                     manager.showMonthlySummary(targetYM);
                     
@@ -83,6 +93,7 @@ public class Main {
                 } catch (DateTimeException e) {
                     System.err.println("有効な年月を入力してください");
                 }
+
                 break;
             default:
                 System.out.println("メニューに表示されている番号を入力してください");
@@ -132,7 +143,7 @@ public class Main {
                 System.out.println("日付の形式が正しくないか、実在しません。もう一度入力してください");
             }
         }
-
+        
         // メモ(任意)
         while (true) {
             System.out.println("メモを入力してください(50文字以内・任意なので書かない場合はEnter):");
