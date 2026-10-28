@@ -3,6 +3,7 @@
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class BudgetManager {
@@ -22,13 +23,25 @@ public class BudgetManager {
         nextId++; // idを増やす
     }
 
+    // 取引が1件もないかの確認
+    public boolean isEmpty() {
+        return transactions.isEmpty();
+    }
+
+    // 一覧や検索結果の並び順はID順に統一する
+    private List<Transaction> getSortedTransactions() {
+        List<Transaction> sorted = new ArrayList<>(transactions);
+        sorted.sort(Comparator.comparingInt(Transaction::getId));
+        return sorted;
+    }
+
     // 取引一覧を表示
     public void showTransaction() {
         System.out.println("---取引一覧---");
         if(transactions.isEmpty()) {
             System.out.println("取引が登録されていません");
         } else {
-            for(Transaction t : transactions) {
+            for(Transaction t : getSortedTransactions()) {
                 System.out.printf("[%d] %s | %s | %s | %,d円 | %s%n",
                 t.getId(),
                 t.getDate(),
@@ -63,26 +76,37 @@ public class BudgetManager {
         long balance = totalIncome - totalExpense;
 
         // 出力
-        System.out.printf("--- %d年%d月の収支 ---", targetYM.getYear(), targetYM.getMonthValue());
+        System.out.printf("--- %d年%d月の収支 ---%n", targetYM.getYear(), targetYM.getMonthValue());
         System.out.printf("収入合計: %,d円\n", totalIncome);
         System.out.printf("支出合計: %,d円\n", totalExpense);
         System.out.printf("収支:     %,d円\n", balance);
     }
 
-    // 取引の検索
+    // 取引の検索(結果はID順)
+    public List<Transaction> searchTransactions(String key) {
+        List<Transaction> result = new ArrayList<>();
+
+        for(Transaction t: getSortedTransactions()) {
+            if(t.getCategory().contains(key)) {
+                result.add(t);
+            }
+        }
+        return result;
+    }
 
     // 取引の削除
     public void deleteTransaction(int id) {
         Transaction t = findById(id);
         if (t != null) {
-            transactions.remove(id);
+            // インデックス指定になってたから修正
+            transactions.remove(t);
         } else {
             System.err.println("指定されたIDの取引がありませんでした");
         }
     }
 
-    // 指定されたIDの取引があるかどうか探す関数
-    private Transaction findById(int id) {
+    // 指定されたIDの取引を探す
+    public Transaction findById(int id) {
         for(Transaction t: transactions) {
             if (t.getId() == id) {
                 return t;

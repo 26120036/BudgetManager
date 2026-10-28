@@ -47,4 +47,11 @@ public class Transaction {
     public String getMemo() {
         return memo;
     }
+
+    // printlnで表示する時用にtoStringをOverideしておく 
+    @Override
+    public String toString() {
+        return String.format("[%d] %s | %s | %s | %,d円 | %s",
+                id, date, getTypeName(), category, amount, memo);
+    }
 }

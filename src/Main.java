@@ -1,8 +1,8 @@
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -63,42 +63,74 @@ public class Main {
                 manager.showTransaction();
                 break;
             case 4:
+                System.out.println("--- 取引検索 ---");
+                System.out.print("検索キーワード(カテゴリ、メモ、日付等)を入力してください: ");
+                String keyword = sc.nextLine();
+
+                List<Transaction> searchResult = manager.searchTransactions(keyword);
+                if (searchResult.isEmpty()) {
+                    System.out.println("条件に一致する取引は見つかりませんでした。");
+                } else {
+                    System.out.println("--- 検索結果 (" + searchResult.size() + "件) ---");
+                    for (Transaction t : searchResult) {
+                        System.out.println(t);
+                    }
+                }
                 break;
             case 5:
-                manager.showTransaction();
-                System.out.println();
-                System.out.println("削除したい取引のIDを指定してください");
-                
-                int id = sc.nextInt();
-                manager.deleteTransaction(id);
+                deleteWithConfirm(sc, manager);
                 break;
             case 6:
-                int year;
-                int month;
-
+                System.out.print("取得したい年月をyyyy-MM形式で入力してください(例: 2026-10): ");
                 try {
-                    System.out.print("取得したい年を入力してください(例: 2026): ");
-                    year = sc.nextInt();
-
-                    System.out.print("取得したい月を入力してください(1~12): ");
-                    month = sc.nextInt();
-                    sc.nextLine();
-
-                    YearMonth targetYM = YearMonth.of(year, month);
+                    YearMonth targetYM = YearMonth.parse(sc.nextLine().trim());
                     manager.showMonthlySummary(targetYM);
-                    
-                } catch (java.util.InputMismatchException e) {
-                    System.err.println("数値を入力してください");
-                    sc.next();
-                } catch (DateTimeException e) {
-                    System.err.println("有効な年月を入力してください");
+                } catch (DateTimeParseException e) {
+                    System.err.println("年月の形式が正しくありません(例: 2026-10)");
                 }
-
                 break;
             default:
                 System.out.println("メニューに表示されている番号を入力してください");
                 break;
         }
+    }
+
+    // 削除処理
+    public static void deleteWithConfirm(Scanner sc, BudgetManager manager) {
+        if (manager.isEmpty()) {
+            System.out.println("削除できる取引がありません");
+            return;
+        }
+
+        manager.showTransaction();
+        System.out.println();
+        System.out.println("削除したい取引のIDを指定してください");
+
+        int id;
+        try {
+            id = sc.nextInt();
+            sc.nextLine();
+        } catch (java.util.InputMismatchException e) {
+            System.err.println("IDは数字で入力してください");
+            sc.nextLine(); // 不正な入力を捨て
+            return;
+        }
+
+        Transaction target = manager.findById(id);
+        if (target == null) {
+            System.err.println("指定されたIDの取引が見つかりませんでした");
+            return;
+        }
+
+        System.out.println("以下の取引を削除します:");
+        System.out.println(target);
+        if (!confirm(sc, "本当に削除しますか?")) {
+            System.out.println("削除をキャンセルしました");
+            return;
+        }
+
+        manager.deleteTransaction(id);
+        System.out.println("削除しました");
     }
 
     // 登録処理
@@ -117,20 +149,27 @@ public class Main {
             try {
                 amount = sc.nextLong();
                 sc.nextLine();
+                
                 if (amount > 0) {
                     break;
                 }
-                System.out.println("0以上の数値を入力してください");
+                System.out.println("0より大きい数値で入力してください");
+                
             } catch (java.util.InputMismatchException e) {
                 System.out.println("数値を入力してください");
                 sc.next();
             }
         }
 
-        // カテゴリ
-        System.out.println("カテゴリーを入力してください(例: 食費)");
-        category = sc.next();
-        sc.nextLine();
+        // カテゴリ(スペースを含む入力可。空は不可)
+        while (true) {
+            System.out.println("カテゴリーを入力してください(例: 食費)");
+            category = sc.nextLine().trim();
+            if (!category.isEmpty()) {
+                break;
+            }
+            System.out.println("カテゴリーが空です。もう一度入力してください");
+        }
 
         // 日付
         while (true) {
@@ -143,7 +182,6 @@ public class Main {
                 System.out.println("日付の形式が正しくないか、実在しません。もう一度入力してください");
             }
         }
-        
         // メモ(任意)
         while (true) {
             System.out.println("メモを入力してください(50文字以内・任意なので書かない場合はEnter):");
@@ -158,7 +196,35 @@ public class Main {
             }
         }
 
+        // 登録前の確認
+        System.out.println();
+        System.out.println("--- 登録内容の確認 ---");
+        System.out.println("種別:     " + typeName);
+        System.out.printf("金額:     %,d円%n", amount);
+        System.out.println("カテゴリ: " + category);
+        System.out.println("日付:     " + date);
+        System.out.println("メモ:     " + memo);
+        if (!confirm(sc, "この内容で登録しますか?")) {
+            System.out.println("登録をキャンセルしました\n");
+            return;
+        }
+
         manager.addTransaction(type, amount, category, date, memo);
         System.out.println(typeName + "の登録が完了しました！\n");
+    }
+
+    // y/n の確認(yならtrue、nならfalse)
+    public static boolean confirm(Scanner sc, String message) {
+        while (true) {
+            System.out.print(message + " (y/n): ");
+            String answer = sc.nextLine().trim().toLowerCase();
+            if (answer.equals("y")) {
+                return true;
+            }
+            if (answer.equals("n")) {
+                return false;
+            }
+            System.out.println("y か n で入力してください");
+        }
     }
 }
