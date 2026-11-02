@@ -60,11 +60,11 @@ public class Main {
                 registerManager(sc, manager, TransactionType.EXPENSE);
                 break;
             case 3:
-                manager.showTransaction();
+                showTransactions(manager);
                 break;
             case 4:
                 System.out.println("--- 取引検索 ---");
-                System.out.print("検索キーワード(カテゴリ、メモ、日付等)を入力してください: ");
+                System.out.print("検索キーワード(カテゴリ、メモ、日付など)を入力してください: ");
                 String keyword = sc.nextLine();
 
                 List<Transaction> searchResult = manager.searchTransactions(keyword);
@@ -84,7 +84,7 @@ public class Main {
                 System.out.print("取得したい年月をyyyy-MM形式で入力してください(例: 2026-10): ");
                 try {
                     YearMonth targetYM = YearMonth.parse(sc.nextLine().trim());
-                    manager.showMonthlySummary(targetYM);
+                    showMonthlySummary(manager, targetYM);
                 } catch (DateTimeParseException e) {
                     System.err.println("年月の形式が正しくありません(例: 2026-10)");
                 }
@@ -95,14 +95,38 @@ public class Main {
         }
     }
 
-    // 削除処理
+    // 取引一覧の表示
+    public static void showTransactions(BudgetManager manager) {
+        System.out.println("---取引一覧---");
+        if (manager.isEmpty()) {
+            System.out.println("取引が登録されていません");
+            return;
+        }
+        for (Transaction t : manager.getSortedTransactions()) {
+            System.out.println(t);
+        }
+    }
+
+    // 指定した年月の収支を表示
+    public static void showMonthlySummary(BudgetManager manager, YearMonth targetYM) {
+        long totalIncome = manager.sumByType(targetYM, TransactionType.INCOME); // 収入合計
+        long totalExpense = manager.sumByType(targetYM, TransactionType.EXPENSE); // 支出合計
+        long balance = totalIncome - totalExpense; // 一月の収支
+
+        System.out.printf("--- %d年%d月の収支 ---%n", targetYM.getYear(), targetYM.getMonthValue());
+        System.out.printf("収入合計: %,d円%n", totalIncome);
+        System.out.printf("支出合計: %,d円%n", totalExpense);
+        System.out.printf("収支:     %,d円%n", balance);
+    }
+
+    // 削除、登録
     public static void deleteWithConfirm(Scanner sc, BudgetManager manager) {
         if (manager.isEmpty()) {
             System.out.println("削除できる取引がありません");
             return;
         }
 
-        manager.showTransaction();
+        showTransactions(manager);
         System.out.println();
         System.out.println("削除したい取引のIDを指定してください");
 
@@ -112,13 +136,13 @@ public class Main {
             sc.nextLine();
         } catch (java.util.InputMismatchException e) {
             System.err.println("IDは数字で入力してください");
-            sc.nextLine(); // 不正な入力を捨て
+            sc.nextLine(); // 不正な入力を捨てる
             return;
         }
 
         Transaction target = manager.findById(id);
         if (target == null) {
-            System.err.println("指定されたIDの取引が見つかりませんでした");
+            System.err.println("指定されたIDの取引がありませんでした");
             return;
         }
 

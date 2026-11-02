@@ -48,7 +48,7 @@ public class Transaction {
         return memo;
     }
 
-    // printlnで表示する時用にtoStringをOverideしておく 
+    // 検索結果、削除を表示する用のtoString()
     @Override
     public String toString() {
         return String.format("[%d] %s | %s | %s | %,d円 | %s",

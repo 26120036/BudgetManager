@@ -26,3 +26,11 @@ nextLine()にしたことでスペースが入っていても登録できるよ�
 confirm()でy/n表示するようにした  
 ・並び順の統一  
 ID順になるようにした  
+  
+11/02  
+・表示と処理の分離
+BudgetManager から System.out / System.err を全部なくし、データを返すだけにした。showTransaction() とshowMonthlySummary() は削除。  
+getSortedTransactions(): ID順の一覧を返す  
+sumByType(年月, 種別): 月ごとの合計を返す  
+deleteTransaction(id): 削除できたかどうかを true/false で返す  
+一覧表示はMain.showTransactions()、月次の収支表示はMain.showMonthlySummary()に移した
