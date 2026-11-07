@@ -1,5 +1,6 @@
 # BudgetManager
-コンソールで動作するJavaの家計簿管理アプリ
+コンソールで動作するJavaの家計簿管理アプリ  
+webApp版作成中: https://github.com/26120036/BudgetManager_webApp  
 
 ## 参考
 日付の取得  
