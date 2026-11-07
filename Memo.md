@@ -34,3 +34,8 @@ getSortedTransactions(): ID順の一覧を返す
 sumByType(年月, 種別): 月ごとの合計を返す  
 deleteTransaction(id): 削除できたかどうかを true/false で返す  
 一覧表示はMain.showTransactions()、月次の収支表示はMain.showMonthlySummary()に移した
+
+  
+
+11/07  
+CSVでの保存を実装。CSVライブラリのほうが楽そう..😭

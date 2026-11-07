@@ -17,7 +17,7 @@ public class Main {
             if (sc.hasNextInt()) {
                 int number = sc.nextInt();
                 sc.nextLine();
-                
+
                 if (number == 7) { // 7の時はアプリを終了する
                     System.out.println("アプリケーションを終了します");
                     run = false;
@@ -119,7 +119,7 @@ public class Main {
         System.out.printf("収支:     %,d円%n", balance);
     }
 
-    // 削除、登録
+    // 削除
     public static void deleteWithConfirm(Scanner sc, BudgetManager manager) {
         if (manager.isEmpty()) {
             System.out.println("削除できる取引がありません");
@@ -157,6 +157,14 @@ public class Main {
         System.out.println("削除しました");
     }
 
+    // CSVに使用できない文字が含まれていないか確認
+    public static boolean isValidCsvValue(String value) {
+        return !value.contains(",")
+                && !value.contains("\"")
+                && !value.contains("\n")
+                && !value.contains("\r");
+    }
+
     // 登録処理
     public static void registerManager(Scanner sc, BudgetManager manager, TransactionType type) {
         long amount = 0;
@@ -173,26 +181,30 @@ public class Main {
             try {
                 amount = sc.nextLong();
                 sc.nextLine();
-                
+
                 if (amount > 0) {
                     break;
                 }
                 System.out.println("0より大きい数値で入力してください");
-                
+
             } catch (java.util.InputMismatchException e) {
                 System.out.println("数値を入力してください");
                 sc.next();
             }
         }
 
-        // カテゴリ(スペースを含む入力可。空は不可)
+        // カテゴリ(スペースを含む入力可。空・CSV禁止文字は不可)
         while (true) {
             System.out.println("カテゴリーを入力してください(例: 食費)");
             category = sc.nextLine().trim();
-            if (!category.isEmpty()) {
+
+            if (category.isEmpty()) {
+                System.out.println("カテゴリーが空です。もう一度入力してください");
+            } else if (!isValidCsvValue(category)) {
+                System.out.println("カンマ, ダブルクォーテーション, 改行は使用できません");
+            } else {
                 break;
             }
-            System.out.println("カテゴリーが空です。もう一度入力してください");
         }
 
         // 日付
@@ -206,15 +218,19 @@ public class Main {
                 System.out.println("日付の形式が正しくないか、実在しません。もう一度入力してください");
             }
         }
+
         // メモ(任意)
         while (true) {
             System.out.println("メモを入力してください(50文字以内・任意なので書かない場合はEnter):");
             memo = sc.nextLine();
+
             if (memo.isEmpty()) {
                 memo = "-";
                 break;
             } else if (memo.length() > 50) {
                 System.out.println("メモは50文字以内で入力してください");
+            } else if (!isValidCsvValue(memo)) {
+                System.out.println("カンマ, ダブルクォーテーション, 改行は使用できません");
             } else {
                 break;
             }
@@ -228,6 +244,7 @@ public class Main {
         System.out.println("カテゴリ: " + category);
         System.out.println("日付:     " + date);
         System.out.println("メモ:     " + memo);
+
         if (!confirm(sc, "この内容で登録しますか?")) {
             System.out.println("登録をキャンセルしました\n");
             return;
@@ -242,6 +259,7 @@ public class Main {
         while (true) {
             System.out.print(message + " (y/n): ");
             String answer = sc.nextLine().trim().toLowerCase();
+
             if (answer.equals("y")) {
                 return true;
             }
