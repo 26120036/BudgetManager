@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        BudgetManager manager = new BudgetManager();
+        BudgetManager manager = new BudgetManager(new TransactionFileRepository());
         boolean run = true;
 
         // run == trueの間は実行

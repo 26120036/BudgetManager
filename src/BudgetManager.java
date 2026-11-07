@@ -7,12 +7,15 @@ import java.util.Comparator;
 import java.util.List;
 
 public class BudgetManager {
+    private final TransactionFileRepository repository;
     private List<Transaction> transactions;
     private int nextId; 
 
     // コンストラクタ
-    public BudgetManager() {
-        this.transactions = new ArrayList<>();
+    public BudgetManager(TransactionFileRepository repository) {
+        this.repository = repository;
+        this.transactions = new ArrayList<>(repository.load());
+        this.transactions.sort(Comparator.comparingInt(Transaction::getId)); // 並び順はID順に統一
         this.nextId = 1;
     }
     
@@ -21,6 +24,7 @@ public class BudgetManager {
         Transaction transaction = new Transaction(nextId, type, amount, category, date, memo);
         transactions.add(transaction);
         nextId++; // idを増やす
+        saveToFile();
     }
 
     // 取引が1件もないかの確認
@@ -68,8 +72,11 @@ public class BudgetManager {
             return false;
         }
         // 取引を渡して削除
-        transactions.remove(t);
-        return true;
+        boolean removed = transactions.remove(t);
+        if (removed) {
+            saveToFile();
+        }
+        return removed;
     }
 
     // 指定されたIDの取引を探す
@@ -80,5 +87,9 @@ public class BudgetManager {
             }
         }
         return null;
+    }
+
+    private void saveToFile() {
+        repository.save(transactions);
     }
 }
